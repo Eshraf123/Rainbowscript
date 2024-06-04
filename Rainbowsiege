@@ -1,0 +1,184 @@
+-- Rainbow Six Siege Roblox Mod Menu Script
+
+-- Define variables
+local Players = game:GetService("Players")
+local Teams = game:GetService("Teams")
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+local Camera = game.Workspace.CurrentCamera
+
+-- Define FOV (Field of View) angle
+local FOV = 60 -- Adjust as needed
+
+-- Define ESP color
+local ESPColor = Color3.fromRGB(255, 0, 0) -- Red, adjust as needed
+
+-- Define ESP distance
+local ESPDistance = 500 -- Adjust as needed
+
+-- Recoil Control Variables
+local EnableRCS = true
+local RecoilControlMode = "High" -- Presets: "Low", "Medium", "High", "Ultra", "Insanity", "Custom"
+local RcCustomStrength = 7 -- Value MUST be ROUNDED! No Decimal values such as 6.5!
+local RequireToggle = true -- Change to false if you want it to always be on.
+local ToggleKey = "CapsLock" -- Usable Keys: "CapsLock", "NumLock", "ScrollLock"
+local DelayRate = 7 -- DO NOT CHANGE IF YOU DON'T KNOW WHAT YOU'RE DOING.
+
+-- Recoil Presets
+local RecoilControlStrength
+if RecoilControlMode == "Low" then
+    RecoilControlStrength = 8
+elseif RecoilControlMode == "Medium" then
+    RecoilControlStrength = 10
+elseif RecoilControlMode == "High" then
+    RecoilControlStrength = 14
+end
+
+-- Function to toggle Highlight Enemies feature
+local highlightEnemiesEnabled = false
+function toggleHighlightEnemies()
+    highlightEnemiesEnabled = not highlightEnemiesEnabled
+    -- Add code to enable/disable Highlight Enemies feature
+end
+
+-- Function for Aimbot
+local aimbotEnabled = false
+function toggleAimbot()
+    aimbotEnabled = not aimbotEnabled
+    if aimbotEnabled then
+        aimbot()
+    end
+end
+
+function aimbot()
+    -- Add code for aimbot functionality
+    while aimbotEnabled do
+        -- Get enemies
+        local enemies = getEnemies()
+        local nearestEnemy = findNearestEnemy(enemies)
+        if nearestEnemy then
+            -- Check if nearest enemy is within FOV
+            if isEnemyInFOV(nearestEnemy) then
+                -- Aim at the head of the nearest enemy
+                aimAt(nearestEnemy.Head.Position)
+            end
+        end
+        wait(0.1) -- Adjust delay as needed
+    end
+end
+
+-- Function to get all players
+function getEnemies()
+    local enemies = {}
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Team ~= LocalPlayer.Team then
+            table.insert(enemies, player)
+        end
+    end
+    return enemies
+end
+
+-- Function to find nearest enemy
+function findNearestEnemy(enemies)
+    local minDistance = math.huge
+    local nearestEnemy = nil
+    for _, enemy in ipairs(enemies) do
+        local distance = (enemy.Character.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).magnitude
+        if distance < minDistance then
+            minDistance = distance
+            nearestEnemy = enemy.Character
+        end
+    end
+    return nearestEnemy
+end
+
+-- Function to check if enemy is within FOV
+function isEnemyInFOV(enemy)
+    local angle = math.acos((Camera.CFrame.LookVector.Unit * (enemy.Head.Position - Camera.CFrame.p).Unit).Magnitude)
+    return math.deg(angle) <= FOV
+end
+
+-- Function to aim at a position
+function aimAt(position)
+    local angle = (position - Camera.CFrame.p).unit
+    local delta = math.atan2(-angle.Y, math.sqrt(angle.X * angle.X + angle.Z * angle.Z))
+    Camera.CFrame = Camera.CFrame * CFrame.Angles(delta, 0, 0)
+end
+
+-- Function to reveal the operator of an enemy
+function revealEnemyOperator(enemy)
+    -- Add code to identify the operator of the enemy
+    -- Example: Displaying the operator name above the enemy's head
+    local operatorName = getEnemyOperatorName(enemy)
+    displayTextAboveHead(enemy.Head.Position, operatorName)
+end
+
+-- Function to get the operator name of an enemy
+function getEnemyOperatorName(enemy)
+    -- Add code to retrieve the operator name of the enemy
+    -- Example: Return a random operator name for demonstration
+    local operators = {"Ash", "Thermite", "Rook", "Doc", "Sledge", "Fuze"}
+    return operators[math.random(1, #operators)]
+end
+
+-- Function to reveal the bomb site
+function revealBombSite()
+    -- Add code to identify the bomb site
+    -- Example: Displaying the bomb site location on the screen
+    local bombSite = getBombSite()
+    displayTextOnScreen("Bomb Site: " .. bombSite)
+end
+
+-- Function to get the bomb site location
+function getBombSite()
+    -- Add code to retrieve the bomb site location
+    -- Example: Return a random bomb site for demonstration
+    local bombSites = {"A", "B"}
+    return bombSites[math.random(1, #bombSites)]
+end
+
+-- Function to display text above an object's head
+function displayTextAboveHead(position, text)
+    -- Add code to display text above an object's head
+end
+
+-- Function to display text on the screen
+function displayTextOnScreen(text)
+    -- Add code to display text on the screen
+end
+
+-- Call the function to display mod menu interface
+displayModMenu()
+
+-- Dont touch this
+EnablePrimaryMouseButtonEvents(true)
+function OnEvent(event,arg)
+    if EnableRCS ~= false then
+        if RequireToggle ~= false then
+            if IsKeyLockOn(ToggleKey)then
+                if IsMouseButtonPressed(3)then
+                    repeat
+                        if IsMouseButtonPressed(1) then
+                            repeat
+                                MoveMouseRelative(0, RecoilControlStrength)
+                                Sleep(DelayRate)
+                            until not IsMouseButtonPressed(1)
+                        end
+                    until not IsMouseButtonPressed(3)
+                end
+            end
+        else 
+            if IsMouseButtonPressed(3)then
+                repeat
+                    if IsMouseButtonPressed(1) then
+                        repeat
+                            MoveMouseRelative(0, RecoilControlStrength)
+                            Sleep(DelayRate)
+                        until not IsMouseButtonPressed(1)
+                    end
+                until not IsMouseButtonPressed(3)
+            end
+        end
+    else 
+    end
+end
